@@ -11,35 +11,6 @@ from pathlib import Path
 def create_project_structure():
     """Create the complete project folder structure"""
     
-    # Define all directories
-    directories = [
-        # Scripts
-        "scripts",
-        
-        # CI workflows
-        "ci/.github/workflows",
-        
-        # Tools
-        "tools/cppcheck",
-        "tools/ldra",
-        "tools/polyspace",
-        "tools/calibration",
-        "tools/hse",
-        "tools/lockstep",
-        "tools/ethernet/wireshark_filters",
-        "tools/trace",
-        "tools/certificates",
-        
-        # Simulation
-        "simulation/models",
-        "simulation/sil",
-        "simulation/hil/hil_scenarios",
-        
-        # Documentation
-        "docs/api_reference",
-        "docs/certification",
-    ]
-    
     # Define all files with their paths
     files = [
         # Scripts
@@ -169,57 +140,59 @@ def create_project_structure():
     print("Creating project structure (scripts, CI, tools, simulation, docs)...")
     print("=" * 70)
     
-    # Create all directories
-    for directory in directories:
-        Path(directory).mkdir(parents=True, exist_ok=True)
-        print(f"✓ Created directory: {directory}")
-    
-    print("\n" + "=" * 70)
-    print("Creating files...")
-    print("=" * 70 + "\n")
-    
     # Create all files
     file_count = 0
+    skip_count = 0
+    
     for file_path in files:
-        file = Path(file_path)
-        file.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Create empty file if it doesn't exist
-        if not file.exists():
-            file.touch()
-            print(f"✓ Created file: {file_path}")
-            file_count += 1
-        else:
-            print(f"- File already exists: {file_path}")
+        try:
+            file = Path(file_path)
+            
+            # Create parent directories if they don't exist
+            file.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Create empty file if it doesn't exist
+            if not file.exists():
+                # Write empty content to file
+                with open(file, 'w') as f:
+                    f.write('')
+                print(f"✓ Created: {file_path}")
+                file_count += 1
+            else:
+                print(f"- Skipped (exists): {file_path}")
+                skip_count += 1
+                
+        except Exception as e:
+            print(f"✗ ERROR creating {file_path}: {e}")
     
     print("\n" + "=" * 70)
     print(f"✅ Project structure created successfully!")
-    print(f"   Created {file_count} new files")
+    print(f"   Created: {file_count} new files")
+    print(f"   Skipped: {skip_count} existing files")
     print("=" * 70)
     
     print("\n📁 Directory Summary:")
-    print(f"   - scripts/           : Build and automation scripts")
-    print(f"   - ci/                : GitHub Actions workflows")
-    print(f"   - tools/             : Development and analysis tools")
-    print(f"   - simulation/        : SIL/HIL simulation files")
-    print(f"   - docs/              : Documentation and certification")
+    print(f"   - scripts/           : {len([f for f in files if f.startswith('scripts/')])} files")
+    print(f"   - ci/                : {len([f for f in files if f.startswith('ci/')])} files")
+    print(f"   - tools/             : {len([f for f in files if f.startswith('tools/')])} files")
+    print(f"   - simulation/        : {len([f for f in files if f.startswith('simulation/')])} files")
+    print(f"   - docs/              : {len([f for f in files if f.startswith('docs/')])} files")
     
     print("\n⚠️  Note: Make shell scripts executable:")
     print("   chmod +x scripts/*.sh")
     
     print("\n📝 Next steps:")
-    print("   1. Review the created structure")
+    print("   1. Verify files: ls -la scripts/ ci/ tools/ simulation/ docs/")
     print("   2. Make scripts executable: find scripts -name '*.sh' -exec chmod +x {} \\;")
     print("   3. Stage files: git add scripts/ ci/ tools/ simulation/ docs/")
-    print("   4. Commit: git commit -m 'Add project structure: scripts, CI, tools, simulation, docs'")
+    print("   4. Commit: git commit -m 'Add project structure'")
     print("   5. Push: git push origin main")
 
 if __name__ == "__main__":
     try:
         create_project_structure()
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"❌ Fatal Error: {e}")
         import traceback
         traceback.print_exc()
         exit(1)
-    
