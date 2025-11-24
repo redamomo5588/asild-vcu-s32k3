@@ -1,0 +1,52 @@
+ATLAS AUTOMOTIVE CORP. PROPRIETARY LICENSE (AACPL)
+Version 1.0, November 2025
+
+Copyright © 2025
+Atlas Automotive Corp. Morocco. All rights reserved.
+
+---
+
+## 1. Grant of License
+Atlas Automotive Corp. (“LICENSOR”) hereby grants to the Licensee a limited, non-transferable, non-sublicensable, and non-exclusive right to use the ASIL-D VCU S32K3xx Source Code, object code, documentation, and associated materials ("SOFTWARE") solely for internal purposes and strictly subject to the terms herein. 
+
+## 2. Restrictions
+- The SOFTWARE and all derivatives, modifications, and improvements thereof remain the exclusive property of LICENSOR.
+- Licensee shall not disclose, distribute, sell, rent, lease, sublicense, publish, or otherwise make the SOFTWARE available to any third party (including affiliates) without LICENSOR’s prior written consent.
+- Licensee may not copy, reverse engineer, decompile, disassemble, or attempt to derive the source code from any binaries, except as expressly permitted by applicable law or in writing by the LICENSOR.
+- All copies, in whole or in part, must retain this notice of proprietary rights and all copyright notices.
+
+## 3. Ownership and Intellectual Property
+- All intellectual property, including but not limited to patents, designs, copyrights, trade secrets, and know-how in and to the SOFTWARE, remain at all times the sole and exclusive property of LICENSOR.
+- The Licensee acquires no rights, title, or interest except the limited license expressly granted herein.
+
+## 4. Confidentiality
+- Licensee agrees to maintain the SOFTWARE, its documentation, and all related proprietary information in strict confidence.
+- Licensee may provide access to employees or contractors only as necessary and provided such parties are bound by equivalent confidentiality obligations.
+
+## 5. Termination
+LICENSOR may terminate this License immediately if Licensee breaches any term of this License. Upon termination for any reason, Licensee shall immediately cease all use, destroy all copies, and certify destruction to LICENSOR.
+
+## 6. No Warranty and Limitation of Liability
+- The SOFTWARE is provided “AS IS,” without warranty of any kind, express or implied, including but not limited to warranties of merchantability, fitness for a particular purpose, or non-infringement.
+- LICENSOR’s total liability for any claim related to the SOFTWARE shall be limited to the amount paid, if any, for the license. In no event shall LICENSOR be liable for indirect, special, incidental, or consequential damages.
+
+## 7. Compliance with Laws
+Licensee shall comply with all applicable laws and export controls relating to the use and transfer of the SOFTWARE.
+
+## 8. Governing Law and Jurisdiction
+This License shall be governed by and construed in accordance with the laws of the Kingdom of Morocco. Any dispute shall be settled exclusively in the courts of Casablanca, Morocco.
+
+## 9. Audit Rights
+LICENSOR reserves the right to audit the use of the SOFTWARE for compliance at reasonable times and upon reasonable notice.
+
+## 10. Entire Agreement
+This License constitutes the full and entire understanding between the parties and supersedes all prior agreements or understandings, written or oral, relating to this subject matter.
+
+---
+
+For permission or licensing inquiries, contact:
+Atlas Automotive Corp. Legal Department
+Email: legal@atlas-automotive.ma
+
+---
+DO NOT REMOVE THIS NOTICE OR ANY COPYRIGHT NOTICE FROM ANY PART OF THE SOFTWARE OR DOCUMENTATION.
