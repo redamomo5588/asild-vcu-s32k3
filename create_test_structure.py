@@ -1,219 +1,185 @@
 #!/usr/bin/env python3
 """
-Script to create test folder structure for S32K automotive project
+Script to create complete project structure for S32K automotive project
+(Scripts, CI, Tools, Simulation, Docs)
 Run this script from your git repository root directory
 """
 
 import os
 from pathlib import Path
 
-def create_test_structure():
-    """Create the complete test folder structure"""
+def create_project_structure():
+    """Create the complete project folder structure"""
     
     # Define all directories
     directories = [
-        # Unit test directories
-        "test/unit/mcal",
-        "test/unit/lockstep",
-        "test/unit/safetylib",
-        "test/unit/swc",
-        "test/unit/baremetal",
-        "test/unit/hse",
-        "test/unit/bsw",
+        # Scripts
+        "scripts",
         
-        # Integration tests
-        "test/integration",
+        # CI workflows
+        "ci/.github/workflows",
         
-        # MC/DC tests
-        "test/mcdc",
+        # Tools
+        "tools/cppcheck",
+        "tools/ldra",
+        "tools/polyspace",
+        "tools/calibration",
+        "tools/hse",
+        "tools/lockstep",
+        "tools/ethernet/wireshark_filters",
+        "tools/trace",
+        "tools/certificates",
         
-        # Coverage
-        "test/coverage/coverage_data",
+        # Simulation
+        "simulation/models",
+        "simulation/sil",
+        "simulation/hil/hil_scenarios",
         
-        # Fault injection
-        "test/fault_injection",
-        
-        # Hardware tests
-        "test/hardware/hil",
-        "test/hardware/sil",
-        "test/hardware/bench",
-        
-        # Back-to-back testing
-        "test/back_to_back",
-        
-        # Requirements-based tests
-        "test/requirements_based",
+        # Documentation
+        "docs/api_reference",
+        "docs/certification",
     ]
     
     # Define all files with their paths
     files = [
-        # MCAL tests
-        "test/unit/mcal/test_adc_S32K348.c",
-        "test/unit/mcal/test_adc_S32K344.c",
-        "test/unit/mcal/test_can_S32K348.c",
-        "test/unit/mcal/test_can_S32K344.c",
-        "test/unit/mcal/test_can_safety.c",
-        "test/unit/mcal/test_eth_S32K348.c",
-        "test/unit/mcal/test_eth_S32K344.c",
-        "test/unit/mcal/test_eth_tsn.c",
-        "test/unit/mcal/test_eth_ptp.c",
-        "test/unit/mcal/test_lin_S32K348.c",
-        "test/unit/mcal/test_lin_S32K344.c",
-        "test/unit/mcal/test_spi_S32K348.c",
-        "test/unit/mcal/test_spi_S32K344.c",
-        "test/unit/mcal/test_i2c_S32K348.c",
-        "test/unit/mcal/test_i2c_S32K344.c",
-        "test/unit/mcal/test_uart_S32K348.c",
-        "test/unit/mcal/test_uart_S32K344.c",
-        "test/unit/mcal/test_qspi_S32K348.c",
-        "test/unit/mcal/test_qspi_S32K344.c",
-        "test/unit/mcal/test_qspi_flash.c",
-        "test/unit/mcal/test_sai_S32K348.c",
-        "test/unit/mcal/test_sai_S32K344.c",
-        "test/unit/mcal/test_sdhc_S32K348.c",
-        "test/unit/mcal/test_pwm_S32K348.c",
-        "test/unit/mcal/test_pwm_S32K344.c",
-        "test/unit/mcal/test_dio_S32K348.c",
-        "test/unit/mcal/test_dio_S32K344.c",
-        "test/unit/mcal/test_gpio_S32K348.c",
-        "test/unit/mcal/test_gpio_S32K344.c",
-        "test/unit/mcal/test_wdg_S32K348.c",
-        "test/unit/mcal/test_wdg_S32K344.c",
-        "test/unit/mcal/test_clock_S32K348.c",
-        "test/unit/mcal/test_clock_S32K344.c",
-        "test/unit/mcal/test_pll_diag.c",
-        "test/unit/mcal/test_external_clock_diag.c",
-        "test/unit/mcal/test_mcu_lockstep.c",
+        # Scripts
+        "scripts/build.sh",
+        "scripts/build_S32K344.sh",
+        "scripts/build_S32K348.sh",
+        "scripts/run_tests.sh",
+        "scripts/static_analysis.sh",
+        "scripts/mcdc_coverage.sh",
+        "scripts/platform_switch.sh",
+        "scripts/calibration_flash.sh",
+        "scripts/report_gen.py",
+        "scripts/hse_key_init.sh",
+        "scripts/lockstep_test.sh",
+        "scripts/ethernet_tsn_config.sh",
+        "scripts/flash_via_ethernet.sh",
+        "scripts/qspi_flash_program.sh",
+        "scripts/memory_layout_select.sh",
+        "scripts/generate_safety_report.py",
+        "scripts/trace_requirements.py",
         
-        # Lockstep tests
-        "test/unit/lockstep/test_lockstep_core.c",
-        "test/unit/lockstep/test_lockstep_diagnostics.c",
-        "test/unit/lockstep/test_lockstep_fault_handler.c",
-        "test/unit/lockstep/test_lockstep_monitor.c",
-        "test/unit/lockstep/test_lockstep_status.c",
-        "test/unit/lockstep/test_lockstep_error_injection.c",
-        "test/unit/lockstep/test_lockstep_redundancy.c",
-        "test/unit/lockstep/test_lockstep_selftest.c",
-        "test/unit/lockstep/test_lockstep_flow_check.c",
+        # CI/CD Workflows
+        "ci/.github/workflows/build.yml",
+        "ci/.github/workflows/build_S32K344.yml",
+        "ci/.github/workflows/build_S32K348.yml",
+        "ci/.github/workflows/test.yml",
+        "ci/.github/workflows/static_analysis.yml",
+        "ci/.github/workflows/coverage.yml",
+        "ci/.github/workflows/platform_matrix.yml",
+        "ci/.github/workflows/calibration_flash.yml",
+        "ci/.github/workflows/hse_diag.yml",
+        "ci/.github/workflows/lockstep_validation.yml",
+        "ci/.github/workflows/ethernet_tsn_test.yml",
+        "ci/.github/workflows/fault_injection.yml",
+        "ci/.github/workflows/safety_verification.yml",
+        "ci/.github/workflows/misra_compliance.yml",
+        "ci/.github/workflows/requirements_trace.yml",
         
-        # Safety library tests
-        "test/unit/safetylib/test_watchdog.c",
-        "test/unit/safetylib/test_redundancy_check.c",
-        "test/unit/safetylib/test_error_handling.c",
-        "test/unit/safetylib/test_failover.c",
-        "test/unit/safetylib/test_selftest.c",
-        "test/unit/safetylib/test_ram_test.c",
-        "test/unit/safetylib/test_flash_test.c",
-        "test/unit/safetylib/test_cpu_test.c",
-        "test/unit/safetylib/test_e2e_protection.c",
-        "test/unit/safetylib/test_e2e_ethernet.c",
-        "test/unit/safetylib/test_program_flow_monitor.c",
-        "test/unit/safetylib/test_crc_check.c",
-        "test/unit/safetylib/test_lockstep_error_handler.c",
+        # Tools - Cppcheck
+        "tools/cppcheck/config.xml",
+        "tools/cppcheck/results.txt",
+        "tools/cppcheck/misra_rules.xml",
         
-        # SWC tests
-        "test/unit/swc/test_TorqueArb.c",
-        "test/unit/swc/test_TorqueArb_safety.c",
-        "test/unit/swc/test_BrakeBlend.c",
-        "test/unit/swc/test_BrakeBlend_safety.c",
-        "test/unit/swc/test_PowerManagement.c",
-        "test/unit/swc/test_EthernetComm.c",
-        "test/unit/swc/test_TsnScheduler.c",
+        # Tools - LDRA
+        "tools/ldra/config.xml",
+        "tools/ldra/results.txt",
+        "tools/ldra/mcdc_report.html",
         
-        # Baremetal tests
-        "test/unit/baremetal/test_startup.c",
-        "test/unit/baremetal/test_interrupt_manager.c",
-        "test/unit/baremetal/test_mpu_driver.c",
-        "test/unit/baremetal/test_memory_test.c",
-        "test/unit/baremetal/test_safety_monitor.c",
-        "test/unit/baremetal/test_lockstep_init.c",
+        # Tools - Polyspace
+        "tools/polyspace/config.xml",
+        "tools/polyspace/results.txt",
         
-        # HSE tests
-        "test/unit/hse/test_hse_api_S32K348.c",
-        "test/unit/hse/test_hse_api_S32K344.c",
-        "test/unit/hse/test_hse_diag.c",
-        "test/unit/hse/test_secure_boot.c",
-        "test/unit/hse/test_macsec.c",
+        # Tools - Calibration
+        "tools/calibration/uds_xcp_adapter.py",
+        "tools/calibration/calibration_report_gen.py",
+        "tools/calibration/calibration_verify.py",
+        "tools/calibration/ethernet_xcp_adapter.py",
         
-        # BSW tests
-        "test/unit/bsw/test_com_stack.c",
-        "test/unit/bsw/test_dem.c",
-        "test/unit/bsw/test_dcm.c",
-        "test/unit/bsw/test_doip.c",
-        "test/unit/bsw/test_nvram_manager.c",
-        "test/unit/bsw/test_scheduler.c",
-        "test/unit/bsw/test_lockstep_scheduler.c",
+        # Tools - HSE
+        "tools/hse/hse_keytool.py",
+        "tools/hse/hse_diag_report_gen.py",
         
-        # Integration tests
-        "test/integration/basic_io_integration.c",
-        "test/integration/safety_mechanism_integration.c",
-        "test/integration/calibration_integration.c",
-        "test/integration/lockstep_integration.c",
-        "test/integration/ethernet_tsn_integration.c",
-        "test/integration/e2e_communication_integration.c",
-        "test/integration/hse_security_integration.c",
-        "test/integration/multi_protocol_integration.c",
+        # Tools - Lockstep
+        "tools/lockstep/lockstep_analyzer.py",
+        "tools/lockstep/lockstep_fault_injector.py",
+        "tools/lockstep/lockstep_report_gen.py",
         
-        # MC/DC tests
-        "test/mcdc/test_mcdc_safety.c",
-        "test/mcdc/test_mcdc_clock.c",
-        "test/mcdc/test_mcdc_com.c",
-        "test/mcdc/test_mcdc_lockstep.c",
-        "test/mcdc/test_mcdc_ethernet.c",
+        # Tools - Ethernet
+        "tools/ethernet/tsn_configurator.py",
+        "tools/ethernet/ptp_sync_analyzer.py",
+        "tools/ethernet/ethernet_traffic_gen.py",
+        "tools/ethernet/wireshark_filters/tsn_filter.lua",
+        "tools/ethernet/wireshark_filters/e2e_filter.lua",
         
-        # Coverage
-        "test/coverage/coverage_report.md",
-        "test/coverage/coverage_lockstep.md",
-        "test/coverage/coverage_data/mcal_coverage.html",
-        "test/coverage/coverage_data/safetylib_coverage.html",
-        "test/coverage/coverage_data/lockstep_coverage.html",
+        # Tools - Trace
+        "tools/trace/requirements_tracer.py",
+        "tools/trace/coverage_tracer.py",
+        "tools/trace/safety_tracer.py",
         
-        # Fault injection
-        "test/fault_injection/fault_inject_adc.c",
-        "test/fault_injection/fault_inject_pll.c",
-        "test/fault_injection/fault_inject_lin.c",
-        "test/fault_injection/fault_inject_hse.c",
-        "test/fault_injection/fault_inject_lockstep.c",
-        "test/fault_injection/fault_inject_ethernet.c",
-        "test/fault_injection/fault_inject_memory.c",
-        "test/fault_injection/fault_inject_clock.c",
+        # Tools - Certificates
+        "tools/certificates/ldra_qualification.pdf",
+        "tools/certificates/cppcheck_certificate.pdf",
+        "tools/certificates/polyspace_certificate.pdf",
+        "tools/certificates/calibration_data_verified.pdf",
+        "tools/certificates/safety_certification_tuv.pdf",
+        "tools/certificates/iso26262_compliance.pdf",
         
-        # Hardware tests - HIL
-        "test/hardware/hil/hil_can_loopback.c",
-        "test/hardware/hil/hil_ethernet_loopback.c",
-        "test/hardware/hil/hil_lockstep_verification.c",
-        "test/hardware/hil/hil_safety_mechanisms.c",
+        # Simulation - Models
+        "simulation/models/vehicle_dynamics.slx",
+        "simulation/models/powertrain_model.slx",
+        "simulation/models/brake_system.slx",
         
-        # Hardware tests - SIL
-        "test/hardware/sil/sil_torque_arb.c",
-        "test/hardware/sil/sil_brake_blend.c",
+        # Simulation - SIL
+        "simulation/sil/sil_wrapper.c",
+        "simulation/sil/sil_config.yaml",
         
-        # Hardware tests - Bench
-        "test/hardware/bench/bench_can_network.py",
-        "test/hardware/bench/bench_ethernet_tsn.py",
-        "test/hardware/bench/bench_lockstep_stress.py",
+        # Simulation - HIL
+        "simulation/hil/hil_test_bench.yaml",
+        "simulation/hil/hil_scenarios/emergency_brake.yaml",
+        "simulation/hil/hil_scenarios/power_loss.yaml",
+        "simulation/hil/hil_scenarios/lockstep_fault.yaml",
         
-        # Back-to-back testing
-        "test/back_to_back/b2b_model_vs_code.c",
-        "test/back_to_back/b2b_requirements_trace.c",
-        "test/back_to_back/b2b_report_generator.py",
+        # Documentation
+        "docs/user_manual.md",
+        "docs/operator_guide.md",
+        "docs/troubleshooting.md",
+        "docs/diagnostic_workflows.md",
+        "docs/calibration_workflows.md",
+        "docs/hse_manual.md",
+        "docs/lockstep_manual.md",
+        "docs/ethernet_tsn_manual.md",
+        "docs/safety_manual.md",
         
-        # Requirements-based tests
-        "test/requirements_based/req_FSR_001_torque_limit.c",
-        "test/requirements_based/req_FSR_002_brake_priority.c",
-        "test/requirements_based/req_TSR_001_lockstep_detection.c",
-        "test/requirements_based/req_TSR_002_watchdog_timeout.c",
-        "test/requirements_based/requirements_trace.xlsx",
+        # Documentation - API Reference
+        "docs/api_reference/mcal_api.md",
+        "docs/api_reference/safetylib_api.md",
+        "docs/api_reference/lockstep_api.md",
+        "docs/api_reference/ethernet_api.md",
+        
+        # Documentation - Certification
+        "docs/certification/asil_d_evidence.md",
+        "docs/certification/misra_compliance.md",
+        "docs/certification/tool_qualification.md",
+        "docs/certification/functional_safety_assessment.pdf",
     ]
     
-    print("Creating test folder structure...")
+    print("Creating project structure (scripts, CI, tools, simulation, docs)...")
+    print("=" * 70)
     
     # Create all directories
     for directory in directories:
         Path(directory).mkdir(parents=True, exist_ok=True)
         print(f"✓ Created directory: {directory}")
     
+    print("\n" + "=" * 70)
+    print("Creating files...")
+    print("=" * 70 + "\n")
+    
     # Create all files
+    file_count = 0
     for file_path in files:
         file = Path(file_path)
         file.parent.mkdir(parents=True, exist_ok=True)
@@ -222,19 +188,37 @@ def create_test_structure():
         if not file.exists():
             file.touch()
             print(f"✓ Created file: {file_path}")
+            file_count += 1
         else:
             print(f"- File already exists: {file_path}")
     
-    print("\n✅ Test folder structure created successfully!")
-    print("\nNext steps:")
-    print("1. Review the created structure")
-    print("2. Stage files: git add test/")
-    print("3. Commit: git commit -m 'Add test folder structure'")
-    print("4. Push: git push origin <your-branch>")
+    print("\n" + "=" * 70)
+    print(f"✅ Project structure created successfully!")
+    print(f"   Created {file_count} new files")
+    print("=" * 70)
+    
+    print("\n📁 Directory Summary:")
+    print(f"   - scripts/           : Build and automation scripts")
+    print(f"   - ci/                : GitHub Actions workflows")
+    print(f"   - tools/             : Development and analysis tools")
+    print(f"   - simulation/        : SIL/HIL simulation files")
+    print(f"   - docs/              : Documentation and certification")
+    
+    print("\n⚠️  Note: Make shell scripts executable:")
+    print("   chmod +x scripts/*.sh")
+    
+    print("\n📝 Next steps:")
+    print("   1. Review the created structure")
+    print("   2. Make scripts executable: find scripts -name '*.sh' -exec chmod +x {} \\;")
+    print("   3. Stage files: git add scripts/ ci/ tools/ simulation/ docs/")
+    print("   4. Commit: git commit -m 'Add project structure: scripts, CI, tools, simulation, docs'")
+    print("   5. Push: git push origin main")
 
 if __name__ == "__main__":
     try:
-        create_test_structure()
+        create_project_structure()
     except Exception as e:
         print(f"❌ Error: {e}")
+        import traceback
+        traceback.print_exc()
         exit(1)
