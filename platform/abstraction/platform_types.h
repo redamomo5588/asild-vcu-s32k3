@@ -14,8 +14,8 @@
  * - MISRA C:2012 compliance (100%)
  * 
  * Supported Platforms:
- * - S32K344 (Cortex-M7, 160 MHz, Lockstep, HSE_B)
- * - S32K348 (Cortex-M7, 240 MHz, Lockstep, HSE_H)
+ * - S32K344 (Cortex-M7, 160 MHz, Lockstep, HSE_B, 4MB Flash)
+ * - S32K348 (Cortex-M7, 240 MHz, Lockstep, HSE_B, 8MB Flash)
  * 
  * Safety Classification: ASIL-D (Foundation Type Definitions)
  * 
@@ -34,7 +34,13 @@
 /*==================================================================================================
 *                                        INCLUDE FILES
 ==================================================================================================*/
-/* None - This is the base platform header (no dependencies) */
+/* 
+ * Optional CMSIS-Core support for enhanced portability 
+ * Enable by defining USE_CMSIS in build configuration
+ */
+#ifdef USE_CMSIS
+    #include "core_cm7.h"  /**< ARM CMSIS-Core Cortex-M7 definitions */
+#endif
 
 /*==================================================================================================
 *                                      DEFINES AND MACROS
@@ -545,7 +551,10 @@ PLATFORM_STATIC_ASSERT(sizeof(uint_least32) == 4U, uint_least32_correct_size);
  * @brief Create multi-bit mask (SAFE: validates range)
  * @param start Starting bit position (0-31)
  * @param end Ending bit position (0-31)
+ * @warning Parameters must be compile-time constants or validated runtime values (0-31)
+ * @warning Undefined behavior if start > end or values exceed 31
  * @note If start==0 and end==31, returns 0xFFFFFFFF
+ * @example BIT_MASK_RANGE(3, 7) returns 0x000000F8 (bits 3-7 set)
  */
 #define BIT_MASK_RANGE(start, end)  \
     (((end) >= 31U) ? 0xFFFFFFFFUL : ((1UL << ((end) + 1U)) - (1UL << (start))))
@@ -652,6 +661,136 @@ STATIC_INLINE uint32 CLAMP_U32(uint32 val, uint32 min, uint32 max)
 }
 
 /*==================================================================================================
+*                              SATURATING ARITHMETIC (ASIL-D SAFETY)
+==================================================================================================*/
+
+/**
+ * @brief Saturating addition for uint32 (overflow protection)
+ * @param a First operand
+ * @param b Second operand
+ * @return Sum of a+b, saturated to UINT32_MAX on overflow
+ * @details Critical for ASIL-D: Prevents undefined behavior on overflow
+ * @example SAT_ADD_U32(0xFFFFFFFF, 10) returns 0xFFFFFFFF (saturated)
+ */
+STATIC_INLINE uint32 SAT_ADD_U32(uint32 a, uint32 b)
+{
+    uint32 result = a + b;
+    
+    /* Check for overflow: result wraps around if a+b > UINT32_MAX */
+    if (result < a)
+    {
+        result = UINT32_MAX;  /* Saturate to maximum value */
+    }
+    
+    return result;
+}
+
+/**
+ * @brief Saturating subtraction for uint32 (underflow protection)
+ * @param a Minuend
+ * @param b Subtrahend
+ * @return Difference a-b, saturated to 0 on underflow
+ * @details Critical for ASIL-D: Prevents wrap-around on underflow
+ * @example SAT_SUB_U32(5, 10) returns 0 (saturated)
+ */
+STATIC_INLINE uint32 SAT_SUB_U32(uint32 a, uint32 b)
+{
+    uint32 result;
+    
+    if (a < b)
+    {
+        result = 0U;  /* Saturate to minimum value */
+    }
+    else
+    {
+        result = a - b;
+    }
+    
+    return result;
+}
+
+/**
+ * @brief Saturating multiplication for uint32 (overflow protection)
+ * @param a First operand
+ * @param b Second operand
+ * @return Product a*b, saturated to UINT32_MAX on overflow
+ * @details Uses 64-bit intermediate to detect overflow
+ * @example SAT_MUL_U32(0xFFFF, 0xFFFF) returns 0xFFFE0001 (no overflow)
+ * @example SAT_MUL_U32(0xFFFFFFFF, 2) returns 0xFFFFFFFF (saturated)
+ */
+STATIC_INLINE uint32 SAT_MUL_U32(uint32 a, uint32 b)
+{
+    uint64 result64 = (uint64)a * (uint64)b;
+    uint32 result;
+    
+    if (result64 > UINT32_MAX)
+    {
+        result = UINT32_MAX;  /* Saturate on overflow */
+    }
+    else
+    {
+        result = (uint32)result64;
+    }
+    
+    return result;
+}
+
+/**
+ * @brief Saturating addition for sint32 (overflow/underflow protection)
+ * @param a First operand
+ * @param b Second operand
+ * @return Sum a+b, saturated to SINT32_MIN/MAX on overflow
+ * @details Handles both positive and negative overflow
+ */
+STATIC_INLINE sint32 SAT_ADD_S32(sint32 a, sint32 b)
+{
+    sint64 result64 = (sint64)a + (sint64)b;
+    sint32 result;
+    
+    if (result64 > SINT32_MAX)
+    {
+        result = SINT32_MAX;  /* Positive overflow */
+    }
+    else if (result64 < SINT32_MIN)
+    {
+        result = SINT32_MIN;  /* Negative overflow */
+    }
+    else
+    {
+        result = (sint32)result64;
+    }
+    
+    return result;
+}
+
+/**
+ * @brief Saturating subtraction for sint32 (overflow/underflow protection)
+ * @param a Minuend
+ * @param b Subtrahend
+ * @return Difference a-b, saturated to SINT32_MIN/MAX on overflow
+ */
+STATIC_INLINE sint32 SAT_SUB_S32(sint32 a, sint32 b)
+{
+    sint64 result64 = (sint64)a - (sint64)b;
+    sint32 result;
+    
+    if (result64 > SINT32_MAX)
+    {
+        result = SINT32_MAX;  /* Positive overflow */
+    }
+    else if (result64 < SINT32_MIN)
+    {
+        result = SINT32_MIN;  /* Negative overflow */
+    }
+    else
+    {
+        result = (sint32)result64;
+    }
+    
+    return result;
+}
+
+/*==================================================================================================
 *                                ARRAY SIZE CALCULATION
 ==================================================================================================*/
 
@@ -665,36 +804,69 @@ STATIC_INLINE uint32 CLAMP_U32(uint32 val, uint32 min, uint32 max)
 *                                MEMORY BARRIER FUNCTIONS
 ==================================================================================================*/
 
-/**
- * @brief Data memory barrier (ARM Cortex-M7)
- * @details Ensures all explicit memory accesses before this instruction complete
- *          before any explicit memory accesses after it.
- * @note Uses CMSIS-Core intrinsics for portability
- */
-STATIC_INLINE void DATA_MEMORY_BARRIER(void)
-{
-    __asm volatile ("dmb" ::: "memory");
-}
+#ifdef USE_CMSIS
+    /**
+     * @brief Data memory barrier (using CMSIS intrinsics)
+     * @details Ensures all explicit memory accesses before this instruction complete
+     *          before any explicit memory accesses after it.
+     * @note CMSIS-Core implementation for better tool compatibility
+     */
+    STATIC_INLINE void DATA_MEMORY_BARRIER(void)
+    {
+        __DMB();
+    }
 
-/**
- * @brief Data synchronization barrier (ARM Cortex-M7)
- * @details Ensures completion of all explicit memory accesses before continuing
- * @note Uses CMSIS-Core intrinsics for portability
- */
-STATIC_INLINE void DATA_SYNC_BARRIER(void)
-{
-    __asm volatile ("dsb" ::: "memory");
-}
+    /**
+     * @brief Data synchronization barrier (using CMSIS intrinsics)
+     * @details Ensures completion of all explicit memory accesses before continuing
+     * @note CMSIS-Core implementation for better tool compatibility
+     */
+    STATIC_INLINE void DATA_SYNC_BARRIER(void)
+    {
+        __DSB();
+    }
 
-/**
- * @brief Instruction synchronization barrier (ARM Cortex-M7)
- * @details Flushes pipeline and ensures all previous instructions complete
- * @note Uses CMSIS-Core intrinsics for portability
- */
-STATIC_INLINE void INSTRUCTION_SYNC_BARRIER(void)
-{
-    __asm volatile ("isb" ::: "memory");
-}
+    /**
+     * @brief Instruction synchronization barrier (using CMSIS intrinsics)
+     * @details Flushes pipeline and ensures all previous instructions complete
+     * @note CMSIS-Core implementation for better tool compatibility
+     */
+    STATIC_INLINE void INSTRUCTION_SYNC_BARRIER(void)
+    {
+        __ISB();
+    }
+#else
+    /**
+     * @brief Data memory barrier (ARM Cortex-M7 inline assembly)
+     * @details Ensures all explicit memory accesses before this instruction complete
+     *          before any explicit memory accesses after it.
+     * @note Direct assembly implementation (no CMSIS dependency)
+     */
+    STATIC_INLINE void DATA_MEMORY_BARRIER(void)
+    {
+        __asm volatile ("dmb" ::: "memory");
+    }
+
+    /**
+     * @brief Data synchronization barrier (ARM Cortex-M7 inline assembly)
+     * @details Ensures completion of all explicit memory accesses before continuing
+     * @note Direct assembly implementation (no CMSIS dependency)
+     */
+    STATIC_INLINE void DATA_SYNC_BARRIER(void)
+    {
+        __asm volatile ("dsb" ::: "memory");
+    }
+
+    /**
+     * @brief Instruction synchronization barrier (ARM Cortex-M7 inline assembly)
+     * @details Flushes pipeline and ensures all previous instructions complete
+     * @note Direct assembly implementation (no CMSIS dependency)
+     */
+    STATIC_INLINE void INSTRUCTION_SYNC_BARRIER(void)
+    {
+        __asm volatile ("isb" ::: "memory");
+    }
+#endif /* USE_CMSIS */
 
 /*==================================================================================================
 *                                    GLOBAL CONSTANTS
@@ -729,10 +901,13 @@ STATIC_INLINE void INSTRUCTION_SYNC_BARRIER(void)
  * - SAFETY FIX: Replaced unsafe MIN/MAX/ABS macros with inline functions
  * - SAFETY FIX: Added overflow protection to BIT_MASK_RANGE macro
  * - SAFETY FIX: ABS_S32 now handles INT32_MIN correctly (no overflow)
+ * - SAFETY ENHANCEMENT: Added saturating arithmetic (SAT_ADD_U32, SAT_MUL_U32, etc.)
+ * - PORTABILITY: Added optional CMSIS support (enable with USE_CMSIS)
  * - Added type limit constants (UINT8_MIN/MAX, SINT32_MIN/MAX, etc.)
  * - Changed memory barriers to inline functions for better type safety
  * - Added Std_ReturnType for AUTOSAR compliance
  * - Enhanced static assertions for uint_least type validation
+ * - Enhanced BIT_MASK_RANGE documentation with usage warnings
  * - Improved documentation and MISRA C:2012 compliance to 100%
  * 
  * @section platform_types_v1_0_0 Version 1.0.0 (2024-01-15)
@@ -748,10 +923,14 @@ STATIC_INLINE void INSTRUCTION_SYNC_BARRIER(void)
  * - Inline functions prevent macro side-effects (MISRA Rule 4.9)
  * - ABS_S32 handles INT32_MIN overflow correctly
  * - BIT_MASK_RANGE validates range to prevent undefined behavior
+ * - Saturating arithmetic prevents overflow/underflow in critical calculations
+ * - SAT_ADD_U32/SAT_SUB_U32/SAT_MUL_U32 prevent wraparound errors
+ * - SAT_ADD_S32/SAT_SUB_S32 handle signed overflow correctly
  * - Volatile types for hardware register access
  * - SafeBoolType for critical boolean values with redundancy
  * - DualChannelType for redundant channel checking
  * - Memory barriers (DMB/DSB/ISB) for multi-core synchronization
+ * - Optional CMSIS support for tool compatibility (define USE_CMSIS)
  * 
  * @section platform_types_usage Usage Guidelines
  * 1. Include this file before all other project headers
@@ -761,6 +940,9 @@ STATIC_INLINE void INSTRUCTION_SYNC_BARRIER(void)
  * 5. Use SafeBoolType for ASIL-D critical boolean flags
  * 6. Use volatile types (vuint32) for memory-mapped registers
  * 7. Call memory barriers when accessing shared lockstep data
+ * 8. Use saturating arithmetic (SAT_ADD_U32) for overflow-critical operations
+ * 9. Define USE_CMSIS for better CMSIS-compliant tool support (optional)
+ * 10. Validate BIT_MASK_RANGE parameters are within 0-31 range
  * 
  * @section platform_types_misra MISRA C:2012 Compliance (100%)
  * - Rule 1.1: ✅ All types well-defined with static assertions
