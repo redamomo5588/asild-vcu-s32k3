@@ -14,8 +14,18 @@
  * - MISRA C:2012 compliance (100%)
  * 
  * Supported Platforms:
- * - S32K344 (Cortex-M7, 160 MHz, Lockstep, HSE_B, 4MB Flash)
- * - S32K348 (Cortex-M7, 240 MHz, Lockstep, HSE_B, 8MB Flash)
+ * - S32K344 (Cortex-M7 Lockstep, 160 MHz, 4MB Flash, HSE_B with HW crypto acceleration)
+ * - S32K348 (Cortex-M7 Lockstep, 240 MHz, 8MB Flash, HSE_B with HW crypto acceleration)
+ * 
+ * HSE_B Security Features (Both MCUs):
+ * - Hardware accelerators: AES-256, RSA-4096, ECC-521
+ * - Firmware included and upgradable
+ * - Side-channel physical attack protection
+ * - Meets EVITA Full security requirements
+ * - Symmetric and asymmetric hardware accelerators
+ * - TRNG/PRNG for secure random number generation
+ * - Secure boot and lifecycle management
+ * - XRDC for access control
  * 
  * Safety Classification: ASIL-D (Foundation Type Definitions)
  * 
